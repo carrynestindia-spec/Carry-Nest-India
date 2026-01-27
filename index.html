@@ -12,6 +12,38 @@
 :root { --gold: #ffb703; --bg: #030712; --card: #0f0f0f; --red: #ff3131; --green: #25D366; --blue: #2874f0; }
 body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: #fff; padding-bottom: 80px; overflow-x: hidden; }
 
+/* INTRO ANIMATION CSS */
+#intro-screen {
+    position: fixed; inset: 0; background: var(--bg); z-index: 10000;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+}
+.intro-text { font-size: 40px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 4px; }
+.word { opacity: 0; display: inline-block; transform: translateY(20px); transition: all 0.5s ease; }
+.word.show { opacity: 1; transform: translateY(0); }
+.move-up { animation: moveToHeader 0.8s forwards ease-in-out; }
+@keyframes moveToHeader {
+    to { transform: translateY(-45vh) scale(0.5); opacity: 0; }
+}
+
+/* PIN ERROR MODAL CSS */
+#pin-error-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.pin-error-box { 
+    background: #111; border: 2px solid var(--red); border-radius: 25px; 
+    padding: 30px 20px; text-align: center; width: 100%; max-width: 350px;
+    box-shadow: 0 0 30px rgba(255,49,49,0.2); animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+@keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.pin-error-icon { font-size: 50px; color: var(--red); margin-bottom: 15px; }
+.pin-error-title { color: #fff; font-weight: 900; margin: 0; font-size: 20px; letter-spacing: 1px; }
+.pin-error-msg { color: #888; margin: 15px 0; font-size: 14px; line-height: 1.5; }
+.pin-close-btn { 
+    background: var(--red); color: #fff; border: none; padding: 12px 30px; 
+    border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+}
+
 /* STORE CLOSED OVERLAY STYLE */
 #store-closed-overlay {
     position: fixed; inset: 0; background: var(--bg); z-index: 99999;
@@ -68,7 +100,6 @@ header { background: rgba(19, 25, 33, 0.95); padding: 15px; border-bottom: 1px s
 .st-CANCELLED { background: rgba(255, 49, 49, 0.15); color: var(--red); border: 1px solid var(--red); }
 .st-CONFIRMED { background: rgba(255, 183, 3, 0.15); color: var(--gold); border: 1px solid var(--gold); }
 .st-RETURN_REQUESTED { background: rgba(255, 159, 67, 0.15); color: #ff9f43; border: 1px solid #ff9f43; }
-.st-EXCHANGE_REQUESTED { background: rgba(165, 94, 234, 0.15); color: #a55eea; border: 1px solid #a55eea; }
 
 .detail-box { background: #0f0f0f; margin: 15px; padding: 25px; border-radius: 24px; border: 1px solid #222; }
 .bill-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
@@ -101,18 +132,43 @@ header { background: rgba(19, 25, 33, 0.95); padding: 15px; border-bottom: 1px s
 .ai-input-area { padding: 12px; border-top: 1px solid #222; display: flex; gap: 8px; background: #0f0f0f; }
 .ai-input-area input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 10px; outline: none; font-family: 'Outfit'; }
 .ai-input-area button { background: var(--gold); border: none; width: 40px; border-radius: 10px; cursor: pointer; color: #000; font-size: 16px; }
+
+/* Language Selector Styles */
+.lang-selector { display: flex; gap: 5px; background: rgba(0,0,0,0.5); padding: 3px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); }
+.lang-btn { font-size: 10px; padding: 4px 8px; border-radius: 6px; cursor: pointer; border: none; background: transparent; color: #000; font-weight: 900; opacity: 0.6; }
+.lang-btn.active { background: #fff; opacity: 1; }
 </style>
 </head>
 <body>
+
+<div id="intro-screen">
+    <div class="intro-text">
+        <span class="word" id="w1">Carry</span>
+        <span class="word" id="w2">Nest</span>
+    </div>
+</div>
+
+<div id="pin-error-modal">
+    <div class="pin-error-box">
+        <div class="pin-error-icon"><i class="fas fa-truck-fast"></i></div>
+        <h2 class="pin-error-title">SORRY!</h2>
+        <p class="pin-error-msg">ప్రస్తుతానికి మేము కేవలం <b>503301 pincode Area</b> లో మాత్రమే డెలివరీ చేస్తున్నాము. త్వరలోనే మీ ఏరియాకి వస్తాము!</p>
+        <button class="pin-close-btn" onclick="document.getElementById('pin-error-modal').style.display='none'">OK, GOT IT</button>
+    </div>
+</div>
 
 <button class="ai-btn" onclick="toggleAI()"><i class="fas fa-robot"></i></button>
 <div id="ai-window">
     <div class="ai-header">
         <span><i class="fas fa-robot"></i> CARRY NEST BOT</span>
+        <div class="lang-selector">
+            <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" id="lang-te" onclick="setLang('te')">తెలుగు</button>
+        </div>
         <i class="fas fa-times" onclick="toggleAI()" style="cursor:pointer"></i>
     </div>
     <div id="ai-messages">
-        <div class="msg-ai">Namaste! How can I help you today regarding our store or products? You can ask about "Founder", "How to Order", or "Returns".</div>
+        <div class="msg-ai" id="ai-welcome">Namaste! How can I help you today? Ask me about "Delivery", "Payment", "Founder", or "Returns".</div>
     </div>
     <div class="ai-input-area">
         <input type="text" id="ai-query" placeholder="Type your doubt..." onkeypress="if(event.key==='Enter') sendToAI()">
@@ -131,7 +187,7 @@ header { background: rgba(19, 25, 33, 0.95); padding: 15px; border-bottom: 1px s
     </div>
 </div>
 
-<header>
+<header id="main-header" style="opacity:0;">
     <div class="logo-text">Carry Nest</div>
     <span class="loc-tag"><i class="fas fa-location-dot"></i> Durki, Telangana</span>
 </header>
@@ -238,15 +294,22 @@ header { background: rgba(19, 25, 33, 0.95); padding: 15px; border-bottom: 1px s
 </div>
 
 <div id="modal">
-    <div style="background:#fff; color:#000; width:92%; max-width:400px; margin:30px auto; border-radius:24px; padding:25px; box-sizing: border-box;">
+    <div style="background:#fff; color:#000; width:92%; max-width:400px; margin:15px auto; border-radius:24px; padding:20px; box-sizing: border-box; max-height: 90vh; overflow-y: auto;">
         <div onclick="document.getElementById('modal').style.display='none'" style="cursor:pointer; color:#666; font-size:14px; margin-bottom:10px; display:inline-block;"><i class="fas fa-arrow-left"></i> Back</div>
-        <h3 style="margin-top:0;">Checkout Details</h3>
+        <h3 style="margin:0 0 15px 0; text-align:center;">Shipping Address</h3>
         <div id="modal-bill-box" style="background:#f9f9f9; padding:12px; border-radius:12px; margin-bottom:15px; font-size:13px; border:1px solid #eee;">
             </div>
         <input type="text" id="f-name" placeholder="Full Name" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
         <input type="tel" id="f-phone" placeholder="WhatsApp Number" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
-        <input type="text" id="f-addr" placeholder="Detailed Address" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+           <input type="text" id="f-village" placeholder="Village" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+           <input type="text" id="f-mandal" placeholder="Mandal" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+        </div>
+        <input type="text" id="f-dist" placeholder="District" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+        <input type="text" id="f-landmark" placeholder="Landmark (Near school, temple, etc.)" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
         <input type="number" id="f-pin" placeholder="Pincode (503301)" oninput="checkPin()" style="width:100%; padding:12px; margin-top:10px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+        
         <button class="btn-main" id="confirm-btn" onclick="placeOrder()" disabled style="opacity: 0.5;">Confirm Order</button>
     </div>
 </div>
@@ -256,6 +319,19 @@ header { background: rgba(19, 25, 33, 0.95); padding: 15px; border-bottom: 1px s
     <div class="nav-item" id="nav-wish" onclick="switchTab('wishlist')"><i class="fas fa-heart"></i><br>Wishlist</div>
     <div class="nav-item" id="nav-acc" onclick="switchTab('account')"><i class="fas fa-user"></i><br>Account</div>
 </div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { document.getElementById('w1').classList.add('show'); }, 500);
+    setTimeout(() => { document.getElementById('w2').classList.add('show'); }, 1000);
+    setTimeout(() => { document.getElementById('intro-screen').classList.add('move-up'); }, 2000);
+    setTimeout(() => { 
+        document.getElementById('intro-screen').style.display = 'none'; 
+        document.getElementById('main-header').style.opacity = '1';
+        document.getElementById('main-header').style.transition = '0.5s';
+    }, 2800);
+});
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
@@ -270,22 +346,9 @@ let products = [], currentP = null, selectedS = null, myOrders = [], timerInt = 
 let wishlist = JSON.parse(localStorage.getItem('cn_wish')) || [];
 let inventoryStatus = {};
 
-// --- Festival Offers Configuration ---
 const FESTIVAL_OFFERS = [
-    {
-        name: "SANKRANTHI SPECIAL",
-        startDate: "2026-01-10",
-        endDate: "2026-01-20",
-        discountPercent: 10,
-        message: "🌾 Sankranthi Offers: Flat 10% OFF on Everything!"
-    },
-    {
-        name: "REPUBLIC DAY SALE",
-        startDate: "2026-01-24",
-        endDate: "2026-01-27",
-        discountPercent: 15,
-        message: "🇮🇳 Republic Day Sale: 15% OFF!"
-    }
+    { name: "SANKRANTHI SPECIAL", startDate: "2026-01-10", endDate: "2026-01-20", discountPercent: 10, message: "🌾 Sankranthi Offers: Flat 10% OFF on Everything!" },
+    { name: "REPUBLIC DAY SALE", startDate: "2026-01-24", endDate: "2026-01-27", discountPercent: 15, message: "🇮🇳 Republic Day Sale: 15% OFF!" }
 ];
 
 function getActiveOffer() {
@@ -297,47 +360,21 @@ async function loadData() {
     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
     const text = await res.text();
     const data = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
-    
     const offer = getActiveOffer();
-    
     products = data.table.rows.map(r => {
         let originalPrice = Number(r.c[3]?.v || 0);
         let mrpPrice = Number(r.c[2]?.v || 0);
         let finalPrice = originalPrice;
         let festDiscountAmt = 0;
-        
-        // Apply Festival Discount if active
-        if(offer) {
-            festDiscountAmt = Math.floor(originalPrice * (offer.discountPercent / 100));
-            finalPrice = originalPrice - festDiscountAmt;
-        }
-        
-        return {
-            id: String(r.c[0]?.v || ""), name: String(r.c[1]?.v || ""), mrp: mrpPrice, 
-            basePrice: originalPrice, // Original Selling Price (before fest discount)
-            price: finalPrice,
-            festDiscount: festDiscountAmt, // The amount saved via festival
-            cat: String(r.c[4]?.v || "All"), img: String(r.c[5]?.v || ""),
-            stock: { S: Number(r.c[6]?.v || 0), M: Number(r.c[7]?.v || 0), L: Number(r.c[8]?.v || 0), XL: Number(r.c[9]?.v || 0) },
-            status: String(r.c[10]?.v || "").trim(), delivery: Number(r.c[11]?.v || 0),
-            hasFestivalOffer: !!offer
-        };
+        if(offer) { festDiscountAmt = Math.floor(originalPrice * (offer.discountPercent / 100)); finalPrice = originalPrice - festDiscountAmt; }
+        return { id: String(r.c[0]?.v || ""), name: String(r.c[1]?.v || ""), mrp: mrpPrice, basePrice: originalPrice, price: finalPrice, festDiscount: festDiscountAmt, cat: String(r.c[4]?.v || "All"), img: String(r.c[5]?.v || ""), stock: { S: Number(r.c[6]?.v || 0), M: Number(r.c[7]?.v || 0), L: Number(r.c[8]?.v || 0), XL: Number(r.c[9]?.v || 0) }, status: String(r.c[10]?.v || "").trim(), delivery: Number(r.c[11]?.v || 0), hasFestivalOffer: !!offer };
     });
-
-    if(offer) {
-        const banner = document.getElementById('promo-banner');
-        if(banner) banner.innerText = "🎉 " + offer.message;
-    }
-
+    if(offer) { const banner = document.getElementById('promo-banner'); if(banner) banner.innerText = "🎉 " + offer.message; }
     renderUI(products, 'grid');
 }
 
 onSnapshot(doc(db, "settings", "inventory"), (snap) => {
-    if(snap.exists()) {
-        inventoryStatus = snap.data();
-        renderUI(products, 'grid');
-        if(currentP) updateSheetStock(currentP.id);
-    }
+    if(snap.exists()) { inventoryStatus = snap.data(); renderUI(products, 'grid'); if(currentP) updateSheetStock(currentP.id); }
 });
 
 function renderUI(items, target) {
@@ -346,9 +383,7 @@ function renderUI(items, target) {
         const adminOutOfStock = inventoryStatus[p.name] === false;
         const isSold = p.status.toUpperCase() === 'SOLD OUT' || p.status.toUpperCase() === 'COMING SOON' || adminOutOfStock;
         const displayStatus = adminOutOfStock ? 'SOLD OUT' : p.status;
-        
         const disc = p.mrp > p.price ? Math.round(((p.mrp - p.price) / p.mrp) * 100) : 0;
-        
         html += `<div class="p-card" onclick="openProduct('${p.id}')">
             <div class="img-box ${isSold ? 'blurred' : ''}">
                 ${disc > 0 && !isSold ? `<div class="disc-tag"><i class="fas fa-fire"></i> ${disc}% OFF</div>` : ''}
@@ -359,7 +394,7 @@ function renderUI(items, target) {
                 <div style="font-size:12px; color:#bbb; height:34px; overflow:hidden;">${p.name}</div>
                 <div style="margin-top:4px;">
                     <span style="font-size:16px; font-weight:900; color:var(--gold);">₹${p.price}</span>
-                    ${p.mrp > p.price ? `<span style="font-size:11px; text-decoration:line-through; color:#666; margin-left:6px;">₹${p.mrp}</span>` : ''}
+                    ${p.mrp > p.price ? `<span style="font-size:11px; text-decoration:line-through; color:#666; margin-left:66px;">₹${p.mrp}</span>` : ''}
                 </div>
             </div>
         </div>`;
@@ -376,276 +411,134 @@ window.searchProduct = () => {
 window.checkPin = () => {
     const pin = document.getElementById('f-pin').value;
     const btn = document.getElementById('confirm-btn');
-    if(pin === "503301") {
-        btn.disabled = false;
-        btn.style.opacity = "1";
-    } else {
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        if(pin.length >= 6) {
-            alert("Sorry! Delivery is only available for 503301 (Durki).");
-            document.getElementById('f-pin').value = "";
-        }
+    if(pin === "503301") { btn.disabled = false; btn.style.opacity = "1"; }
+    else { 
+        btn.disabled = true; btn.style.opacity = "0.5"; 
+        if(pin.length >= 6) { 
+            document.getElementById('pin-error-modal').style.display = 'flex';
+            document.getElementById('f-pin').value = ""; 
+        } 
     }
 };
 
 window.placeOrder = () => {
     const nameInput = document.getElementById('f-name');
     const phoneInput = document.getElementById('f-phone');
-    const addrInput = document.getElementById('f-addr');
+    const villageInput = document.getElementById('f-village');
+    const mandalInput = document.getElementById('f-mandal');
+    const distInput = document.getElementById('f-dist');
     const toast = document.getElementById('warning-toast');
-
+    
     let isValid = true;
-    [nameInput, phoneInput, addrInput].forEach(el => {
+    [nameInput, phoneInput, villageInput, mandalInput, distInput].forEach(el => {
         if(!el.value.trim()){ el.classList.add('input-error'); isValid = false; }
         else { el.classList.remove('input-error'); }
     });
 
-    if(!isValid) {
-        toast.innerText = "⚠️ Please fill all details!";
-        toast.style.display = 'block';
-        if(window.navigator.vibrate) window.navigator.vibrate(50);
-        setTimeout(() => toast.style.display = 'none', 2500);
-        return;
-    }
-
+    if(!isValid) { toast.innerText = "⚠️ Please fill all details!"; toast.style.display = 'block'; if(window.navigator.vibrate) window.navigator.vibrate(50); setTimeout(() => toast.style.display = 'none', 2500); return; }
+    
     const btn = document.getElementById('confirm-btn'); 
     btn.disabled = true; 
-
     document.getElementById('rec-id').innerText = currentOID;
     document.getElementById('rec-name').innerText = currentP.name;
     document.getElementById('rec-size').innerText = selectedS;
     document.getElementById('rec-total').innerText = "₹" + (currentP.price + currentP.delivery);
-
+    document.getElementById('order-receipt').style.display = 'block';
     document.getElementById('modal').style.display = 'none'; 
     document.getElementById('sheet').style.display = 'none';
     document.getElementById('success-screen').style.display = 'flex';
-    
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
-    const orderData = {
-        orderID: currentOID, 
-        customer: nameInput.value, 
-        phone: phoneInput.value,
-        address: addrInput.value, 
-        product: currentP.name, 
-        img: currentP.img, 
-        size: selectedS, 
-        price: currentP.price,
-        deliveryCharge: currentP.delivery, 
-        total: (currentP.price + currentP.delivery), 
-        status: "NEW", 
-        createdAt: serverTimestamp()
-    };
+    const fullAddress = `${villageInput.value}, ${mandalInput.value}, ${distInput.value}. Landmark: ${document.getElementById('f-landmark').value || 'None'}`;
 
+    const orderData = { orderID: currentOID, customer: nameInput.value, phone: phoneInput.value, address: fullAddress, pincode: document.getElementById('f-pin').value, product: currentP.name, img: currentP.img, size: selectedS, price: currentP.price, deliveryCharge: currentP.delivery, total: (currentP.price + currentP.delivery), status: "NEW", createdAt: serverTimestamp() };
     addDoc(collection(db, "orders"), orderData).catch(e => console.error(e));
 };
 
-window.openProduct = (id) => {
-    currentP = products.find(x => x.id === id); 
-    selectedS = null; 
-    updateSheetStock(id);
-    loadReviews(id);
-    document.getElementById('sheet').style.display = 'block';
-};
+window.openProduct = (id) => { currentP = products.find(x => x.id === id); selectedS = null; updateSheetStock(id); loadReviews(id); document.getElementById('sheet').style.display = 'block'; };
 
 function updateSheetStock(id) {
-    const p = products.find(x => x.id === id);
-    if(!p) return;
+    const p = products.find(x => x.id === id); if(!p) return;
     const adminOutOfStock = inventoryStatus[p.name] === false;
     const isSold = p.status.toUpperCase().includes('SOLD') || p.status.toUpperCase().includes('COMING') || adminOutOfStock;
-    
     document.getElementById('v-title').innerText = p.name; 
-    
-    let sellPriceHtml = `₹${p.price}`;
-    if(p.festDiscount > 0) {
-        sellPriceHtml += `<span class="fest-tag-detail">-${p.festDiscount} Festival Off</span>`;
-    }
+    let sellPriceHtml = `₹${p.price}`; if(p.festDiscount > 0) sellPriceHtml += `<span class="fest-tag-detail">-${p.festDiscount} Festival Off</span>`;
     document.getElementById('v-sell').innerHTML = sellPriceHtml;
-    
     document.getElementById('v-mrp').innerText = p.mrp > p.price ? '₹' + p.mrp : '';
     document.getElementById('v-img').innerHTML = `<img src="${p.img}" style="width:100%;height:300px;object-fit:contain">`;
-    
     let sH = ''; 
     ['S','M','L','XL'].forEach(s => { 
         let qty = p.stock[s];
         let stockTag = qty > 0 ? `<div style="font-size:9px; color:${qty < 5 ? 'var(--red)' : '#888'}">${qty} left</div>` : '';
-        
-        sH += qty > 0 
-            ? `<div id="sz-${s}" onclick="setS('${s}')" style="display:flex; flex-direction:column; align-items:center; padding:10px 0;">
-                <span>${s}</span>
-                ${stockTag}
-               </div>` 
-            : `<div class="disabled">${s}</div>`; 
+        sH += qty > 0 ? `<div id="sz-${s}" onclick="setS('${s}')" style="display:flex; flex-direction:column; align-items:center; padding:10px 0;"><span>${s}</span>${stockTag}</div>` : `<div class="disabled">${s}</div>`; 
     });
-    
     document.getElementById('v-sizes').innerHTML = sH; 
-    const buyBtn = document.getElementById('buy-btn');
-    buyBtn.disabled = isSold; 
-    buyBtn.innerText = adminOutOfStock ? "SOLD OUT" : (isSold ? p.status : "Buy Now");
+    const buyBtn = document.getElementById('buy-btn'); buyBtn.disabled = isSold; buyBtn.innerText = adminOutOfStock ? "SOLD OUT" : (isSold ? p.status : "Buy Now");
     updateWishIcon();
 }
 
 async function loadReviews(pid) {
     const q = query(collection(db, "reviews"), where("productId", "==", pid), orderBy("timestamp", "desc"));
     onSnapshot(q, (snap) => {
-        let h = '';
-        snap.forEach(d => {
-            const r = d.data();
-            h += `<div class="rev-card">
-                <div class="rev-name">${r.userName}</div>
-                <div class="rev-text">${r.comment}</div>
-            </div>`;
-        });
+        let h = ''; snap.forEach(d => { const r = d.data(); h += `<div class="rev-card"><div class="rev-name">${r.userName}</div><div class="rev-text">${r.comment}</div></div>`; });
         document.getElementById('reviews-container').innerHTML = h || '<p style="color:#555; font-size:12px; text-align:center;">No reviews yet. Be the first to review!</p>';
     });
 }
 
 document.getElementById('post-rev-btn').onclick = async () => {
-    const name = document.getElementById('rev-name').value;
-    const text = document.getElementById('rev-text').value;
-    if(!name || !text) return alert("Please enter name and review!");
-    
-    try {
-        await addDoc(collection(db, "reviews"), {
-            productId: currentP.id,
-            userName: name,
-            comment: text,
-            timestamp: serverTimestamp()
-        });
-        document.getElementById('rev-name').value = '';
-        document.getElementById('rev-text').value = '';
-    } catch(e) { alert("Error posting review"); }
+    const name = document.getElementById('rev-name').value; const text = document.getElementById('rev-text').value; if(!name || !text) return alert("Please enter name and review!");
+    try { await addDoc(collection(db, "reviews"), { productId: currentP.id, userName: name, comment: text, timestamp: serverTimestamp() }); document.getElementById('rev-name').value = ''; document.getElementById('rev-text').value = ''; } catch(e) { alert("Error posting review"); }
 };
 
 window.openForm = () => { 
     if(!selectedS) {
-        const sizeGrid = document.getElementById('v-sizes');
-        const toast = document.getElementById('warning-toast');
-        sizeGrid.classList.add('size-error-shake');
-        toast.innerText = "⚠️ Please select a size!";
-        toast.style.display = 'block';
-        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-        setTimeout(() => { 
-            sizeGrid.classList.remove('size-error-shake');
-            toast.style.display = 'none';
-        }, 1500);
-        return;
+        const sizeGrid = document.getElementById('v-sizes'); const toast = document.getElementById('warning-toast'); sizeGrid.classList.add('size-error-shake'); toast.innerText = "⚠️ Please select a size!"; toast.style.display = 'block';
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50); setTimeout(() => { sizeGrid.classList.remove('size-error-shake'); toast.style.display = 'none'; }, 1500); return;
     }
     currentOID = "CN-" + Math.floor(1000 + Math.random() * 9000); 
-
-    let billHtml = `
-        <div class="bill-row"><span>Order ID:</span><b style="color:var(--blue);">${currentOID}</b></div>
-        <div class="bill-row"><span>Item Price:</span><b>₹${currentP.basePrice}</b></div>
-        ${currentP.festDiscount > 0 ? `<div class="bill-row" style="color:var(--green)"><span>Festival Off:</span><b>-₹${currentP.festDiscount}</b></div>` : ''}
-        <div class="bill-row"><span>Delivery:</span><b style="color:var(--green);">₹${currentP.delivery}</b></div>
-        <hr style="border:0; border-top:1px solid #eee; margin:8px 0;">
-        <div class="bill-row" style="font-size:15px; font-weight:900;"><span>Total Amount:</span><span style="color:var(--red);">₹${currentP.price + currentP.delivery}</span></div>
-    `;
-    document.getElementById('modal-bill-box').innerHTML = billHtml;
-    document.getElementById('modal').style.display = 'block'; 
+    let billHtml = `<div class="bill-row"><span>Order ID:</span><b style="color:var(--blue);">${currentOID}</b></div><div class="bill-row"><span>Item Price:</span><b>₹${currentP.basePrice}</b></div>${currentP.festDiscount > 0 ? `<div class="bill-row" style="color:var(--green)"><span>Festival Off:</span><b>-₹${currentP.festDiscount}</b></div>` : ''}<div class="bill-row"><span>Delivery:</span><b style="color:var(--green);">₹${currentP.delivery}</b></div><hr style="border:0; border-top:1px solid #eee; margin:8px 0;"><div class="bill-row" style="font-size:15px; font-weight:900;"><span>Total Amount:</span><span style="color:var(--red);">₹${currentP.price + currentP.delivery}</span></div>`;
+    document.getElementById('modal-bill-box').innerHTML = billHtml; document.getElementById('modal').style.display = 'block'; 
 };
 
-window.setS = (s) => { 
-    selectedS = s; 
-    document.querySelectorAll('.s-grid div').forEach(b => b.classList.remove('active', 'size-error-shake')); 
-    document.getElementById('sz-'+s).classList.add('active'); 
-};
+window.setS = (s) => { selectedS = s; document.querySelectorAll('.s-grid div').forEach(b => b.classList.remove('active', 'size-error-shake')); document.getElementById('sz-'+s).classList.add('active'); };
 
-window.fetchOrders = async () => {
+window.fetchOrders = () => {
     const phone = document.getElementById('track-phone').value; if(!phone) return alert("Enter Number");
     const q = query(collection(db, "orders"), where("phone", "==", phone));
-    const snap = await getDocs(q); myOrders = []; let h = '';
-    snap.forEach(d => {
-        const o = d.data(); o.id = d.id; myOrders.push(o);
-        h += `<div class="order-card" onclick="viewOrderDetails('${o.id}')">
-            <img src="${o.img}" class="order-img">
-            <div class="order-info">
-                <div class="order-id-label">ID: ${o.orderID || o.id.slice(0,6)}</div>
-                <div class="order-name">${o.product}</div>
-                <div style="font-size:12px; font-weight:900; color:var(--gold);">₹${o.total}</div>
-                <div class="status-pill st-${o.status}">${o.status.replace('_',' ')}</div>
-            </div>
-        </div>`;
+    onSnapshot(q, (snap) => {
+        myOrders = []; let h = '';
+        snap.forEach(d => {
+            const o = d.data(); o.id = d.id; myOrders.push(o);
+            h += `<div class="order-card" onclick="viewOrderDetails('${o.id}')"><img src="${o.img}" class="order-img"><div class="order-info"><div class="order-id-label">ID: ${o.orderID || o.id.slice(0,6)}</div><div class="order-name">${o.product}</div><div style="font-size:12px; font-weight:900; color:var(--gold);">₹${o.total}</div><div class="status-pill st-${o.status}">${o.status.replace('_',' ')}</div></div></div>`;
+        });
+        document.getElementById('orders-list').innerHTML = h || '<p style="text-align:center; padding:40px; color:#555;">No Orders Found</p>';
     });
-    document.getElementById('orders-list').innerHTML = h || '<p style="text-align:center; padding:40px; color:#555;">No Orders Found</p>';
 };
 
 window.viewOrderDetails = (id) => {
-    const o = myOrders.find(x => x.id === id);
+    const o = myOrders.find(x => x.id === id); if(!o) return;
     const orderTime = o.createdAt ? o.createdAt.toDate() : new Date();
     const returnExp = orderTime.getTime() + (24 * 60 * 60 * 1000);
     const canReturn = o.status === 'DELIVERED' && new Date().getTime() < returnExp;
     const canCancel = o.status === 'NEW' || o.status === 'CONFIRMED';
-
     if(timerInt) clearInterval(timerInt);
     const updateTimer = () => {
-        const diff = returnExp - new Date().getTime();
-        const el = document.getElementById('return-timer');
+        const diff = returnExp - new Date().getTime(); const el = document.getElementById('return-timer');
         if(diff <= 0) { if(el) el.innerHTML = "Return period ended"; clearInterval(timerInt); }
         else { const h = Math.floor(diff/3600000); const m = Math.floor((diff%3600000)/60000); if(el) el.innerHTML = `<i class="fas fa-clock"></i> Request period ends in: ${h}h ${m}m`; }
     };
-    document.getElementById('order-details-content').innerHTML = `
-        <div class="detail-box">
-            <div style="text-align:center; margin-bottom:20px;">
-                <img src="${o.img}" style="width:140px; height:140px; border-radius:15px; object-fit:cover; margin-bottom:12px; border:1px solid #222;">
-                <div class="status-pill st-${o.status}" style="font-size:12px; padding:5px 15px;">${o.status.replace('_',' ')}</div>
-                <div id="return-timer" class="timer-text" style="display:${o.status==='DELIVERED'?'block':'none'}"></div>
-            </div>
-            <div style="background:#000; padding:15px; border-radius:15px; border:1px solid #222; margin-bottom:15px;">
-                <div class="bill-row"><span>Order ID</span><b style="color:var(--blue)">${o.orderID || 'N/A'}</b></div>
-                <div class="bill-row"><span>Product</span><b>${o.product}</b></div>
-                <div class="bill-row"><span>Size</span><b style="color:var(--gold)">${o.size}</b></div>
-            </div>
-            ${canReturn ? `
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <button class="btn-main" style="background:#a55eea; margin-top:0;" onclick="showExchangeSelection('${o.id}')">Exchange</button>
-                    <button class="btn-main" style="margin-top:0;" onclick="showReasons('${o.id}', 'RETURN_REQUESTED')">Return</button>
-                </div>
-            ` : ''}
-            ${canCancel ? `<button class="btn-main" style="background:var(--red)" onclick="showReasons('${o.id}', 'CANCELLED')">Cancel Order</button>` : ''}
-        </div>`;
+    document.getElementById('order-details-content').innerHTML = `<div class="detail-box"><div style="text-align:center; margin-bottom:20px;"><img src="${o.img}" style="width:140px; height:140px; border-radius:15px; object-fit:cover; margin-bottom:12px; border:1px solid #222;"><div class="status-pill st-${o.status}" style="font-size:12px; padding:5px 15px;">${o.status.replace('_',' ')}</div><div id="return-timer" class="timer-text" style="display:${o.status==='DELIVERED'?'block':'none'}"></div></div><div style="background:#000; padding:15px; border-radius:15px; border:1px solid #222; margin-bottom:15px;"><div class="bill-row"><span>Order ID</span><b style="color:var(--blue)">${o.orderID || 'N/A'}</b></div><div class="bill-row"><span>Product</span><b>${o.product}</b></div><div class="bill-row"><span>Size</span><b style="color:var(--gold)">${o.size}</b></div></div>${canReturn ? `<button class="btn-main" style="margin-top:0;" onclick="showReasons('${o.id}', 'RETURN_REQUESTED')">Return Order</button>` : ''}${canCancel ? `<button class="btn-main" style="background:var(--red)" onclick="showReasons('${o.id}', 'CANCELLED')">Cancel Order</button>` : ''}</div>`;
     document.getElementById('order-detail-view').style.display = 'block';
     if(o.status === 'DELIVERED') { updateTimer(); timerInt = setInterval(updateTimer, 60000); }
 };
-
-window.showExchangeSelection = (orderDbId) => {
-    const o = myOrders.find(x => x.id === orderDbId);
-    const p = products.find(x => x.name === o.product);
-    if(!p) return alert("Product data not found!");
-    let sizeHtml = '';
-    ['S','M','L','XL'].forEach(s => {
-        let qty = p.stock[s];
-        if(s === o.size) sizeHtml += `<div class="disabled" style="opacity:0.5; border:1px dashed #444;">${s}<br><small>Current</small></div>`;
-        else if(qty > 0) sizeHtml += `<div id="ex-sz-${s}" onclick="selectExchangeSize('${s}')" style="padding:10px 0; border:1px solid #333; border-radius:10px; cursor:pointer;">${s}<br><small>${qty} left</small></div>`;
-        else sizeHtml += `<div class="disabled">${s}</div>`;
-    });
-    document.getElementById('reason-title').innerText = "CHOOSE NEW SIZE";
-    document.getElementById('reason-list').innerHTML = `<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px;" id="ex-grid">${sizeHtml}</div><button id="ex-confirm-btn" class="btn-main" style="background:#a55eea; margin-top:10px; opacity:0.5;" disabled onclick="processExchange('${orderDbId}')">Confirm Exchange</button>`;
-    document.getElementById('reason-view').style.display = 'flex';
-};
-
-let exchangeSelectedSize = null;
-window.selectExchangeSize = (s) => {
-    exchangeSelectedSize = s;
-    document.querySelectorAll('#ex-grid > div').forEach(d => { if(!d.classList.contains('disabled')) { d.style.borderColor = "#333"; d.style.background = "transparent"; } });
-    const selectedEl = document.getElementById('ex-sz-'+s);
-    if(selectedEl) { selectedEl.style.borderColor = "var(--gold)"; selectedEl.style.background = "rgba(255,183,3,0.1)"; }
-    document.getElementById('ex-confirm-btn').disabled = false;
-    document.getElementById('ex-confirm-btn').style.opacity = "1";
-};
-
-window.processExchange = async (id) => { if(!exchangeSelectedSize) return; confirmStatusUpdate(id, 'EXCHANGE_REQUESTED', 'Size Exchange to: ' + exchangeSelectedSize); };
 
 window.showReasons = (id, type) => {
     let list = [], title = "SELECT A REASON";
     if(type === 'CANCELLED') list = ["Ordered by mistake", "Better price found", "Changed my mind", "Delayed shipping", "Wrong size"];
     else { title = "REASON FOR RETURN"; list = ["Size doesn't fit", "Product damaged", "Wrong item", "Quality issue", "Color mismatch"]; }
     document.getElementById('reason-title').innerText = title;
-    let html = '';
-    list.forEach(r => { html += `<div class="reason-item" onclick="confirmStatusUpdate('${id}', '${type}', '${r}')">${r}</div>`; });
-    document.getElementById('reason-list').innerHTML = html;
-    document.getElementById('reason-view').style.display = 'flex';
+    let html = ''; list.forEach(r => { html += `<div class="reason-item" onclick="confirmStatusUpdate('${id}', '${type}', '${r}')">${r}</div>`; });
+    document.getElementById('reason-list').innerHTML = html; document.getElementById('reason-view').style.display = 'flex';
 };
 
 window.confirmStatusUpdate = async (id, s, reason) => {
@@ -655,13 +548,7 @@ window.confirmStatusUpdate = async (id, s, reason) => {
         document.getElementById('order-detail-view').style.display = 'none';
         document.getElementById('orders-view').style.display = 'none';
         document.getElementById('account-view').style.display = 'none';
-        let scTitle = "REQUESTED", scMsg = "Request submitted", scColor = "var(--gold)";
-        if(s === 'CANCELLED') { scTitle = "CANCELLED"; scMsg = "Order cancelled successfully"; scColor = "var(--red)"; }
-        else if(s === 'EXCHANGE_REQUESTED') { scTitle = "EXCHANGE"; scMsg = "Exchange request submitted"; scColor = "#a55eea"; }
-        document.getElementById('sc-title').innerText = scTitle;
-        document.getElementById('sc-msg').innerText = scMsg;
-        document.getElementById('sc-icon').style.background = scColor;
-        document.getElementById('success-screen').style.display = 'flex';
+        goHome(); 
     } catch (e) { alert("Error updating status"); }
 };
 
@@ -673,66 +560,57 @@ window.openOrders = () => { document.getElementById('orders-view').style.display
 window.closeSheet = () => { document.getElementById('sheet').style.display = 'none'; if(timerInt) clearInterval(timerInt); };
 
 onSnapshot(doc(db, "settings", "store"), (snap) => { if(snap.exists()){ const isOpen = snap.data().isOpen; document.getElementById('store-closed-overlay').style.display = isOpen ? 'none' : 'flex'; } });
-
 loadData();
 </script>
 
 <script>
-function toggleAI() {
-    const win = document.getElementById('ai-window');
-    win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+let currentLang = 'en';
+
+function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    
+    const welcome = document.getElementById('ai-welcome');
+    if(lang === 'te') {
+        welcome.innerHTML = "నమస్తే! నేను మీకు ఎలా సహాయం చేయగలను? డెలివరీ, పేమెంట్, ఫౌండర్ లేదా రిటర్న్స్ గురించి అడగండి.";
+        document.getElementById('ai-query').placeholder = "మీ సందేహాన్ని ఇక్కడ టైప్ చేయండి...";
+    } else {
+        welcome.innerHTML = "Namaste! How can I help you today? Ask me about \"Delivery\", \"Payment\", \"Founder\", or \"Returns\".";
+        document.getElementById('ai-query').placeholder = "Type your doubt...";
+    }
 }
 
+function toggleAI() { const win = document.getElementById('ai-window'); win.style.display = (win.style.display === 'flex') ? 'none' : 'flex'; }
+
 function sendToAI() {
-    const input = document.getElementById('ai-query');
-    const logs = document.getElementById('ai-messages');
-    const query = input.value.trim().toLowerCase();
-    if(!query) return;
-
-    logs.innerHTML += `<div class="msg-user">${input.value}</div>`;
-    const userVal = input.value;
-    input.value = '';
+    const input = document.getElementById('ai-query'); const logs = document.getElementById('ai-messages'); const query = input.value.trim().toLowerCase(); if(!query) return;
+    logs.innerHTML += `<div class="msg-user">${input.value}</div>`; input.value = '';
+    const tempId = 'ai-loading-' + Date.now(); logs.innerHTML += `<div class="msg-ai" id="${tempId}">...</div>`; logs.scrollTop = logs.scrollHeight;
     
-    const tempId = 'ai-loading-' + Date.now();
-    logs.innerHTML += `<div class="msg-ai" id="${tempId}">...</div>`;
-    logs.scrollTop = logs.scrollHeight;
-
     setTimeout(() => {
         let response = "";
-
-        if (query.includes("founder") || query.includes("owner") || query.includes("evadu")) {
-            response = "<b>Carry Nest</b> was founded by a dedicated team in <b>Durki</b>. Our goal is to bring the latest fashion to our local community at the best prices.";
-        } 
-        else if (query.includes("order") || query.includes("buy") || query.includes("how to")) {
-            response = "Ordering is easy! <br>1. Choose your favorite product.<br>2. Select your size.<br>3. Click 'Buy Now'.<br>4. Fill your details and confirm. We'll handle the rest!";
+        if (currentLang === 'te') {
+            if (query.includes("founder")) response = "<b>Carry Nest</b> ni <b>Durki</b> village lo start chesharu. Deeni main aim Durki people ki best quality products fast ga delivery cheyadam.";
+            else if (query.includes("order")) response = "Meeku nachina product select chesi, 'Size' ni tap chesi, 'Buy Now' button click cheyandi. Tarvatha mee details fill chesi confirm cheyandi.";
+            else if (query.includes("cancel")) response = "Account -> My Orders lo ki velli 'Cancel' button click cheyandi. Order inka confirm avvakapothe ventane cancel aypothundi.";
+            else if (query.includes("return")) response = "Order deliver ayina 24 hours lopala 'My Orders' section lo Return request pettukovachu.";
+            else if (query.includes("delivery") || query.includes("time") || query.includes("eppudu")) response = "Normal ga delivery ki <b>2 to 4 days</b> పడుతుంది. కానీ మీ లొకేషన్ దగ్గరగా ఉంటే <b>1 day</b> లోనే డెలివరీ చేసే అవకాశం ఉంది!";
+            else if (query.includes("payment") || query.includes("cod")) response = "Memu <b>Cash on Delivery (COD)</b> support chesthamu. Product mee chethiki vachake dabbulu ivvachu.";
+            else if (query.includes("hi") || query.includes("hello") || query.includes("namaste")) response = "నమస్తే! వెల్కమ్ టు క్యారీ నెస్. నేను మీకు ఎలా సహాయం చేయగలను?";
+            else response = "క్షమించండి, నాకు అది అర్థం కాలేదు. మీరు ఫౌండర్, డెలివరీ, పేమెంట్ లేదా ఆర్డర్ గురించి అడగవచ్చు.";
+        } else {
+            if (query.includes("founder")) response = "<b>Carry Nest</b> was founded in <b>Durki</b>. Our goal is to provide high-quality fashion with fast local delivery.";
+            else if (query.includes("order")) response = "To order: Select product -> Choose Size -> Click 'Buy Now' -> Fill details -> Confirm.";
+            else if (query.includes("cancel")) response = "Go to Account -> My Orders -> Click 'Cancel'. Available until order is confirmed.";
+            else if (query.includes("return")) response = "Return requests are available for 24 hours after delivery under 'My Orders'.";
+            else if (query.includes("delivery") || query.includes("time") || query.includes("when")) response = "Standard delivery takes <b>2 to 4 days</b>. However, depending on your distance, <b>1-day delivery</b> is also possible!";
+            else if (query.includes("payment") || query.includes("cod")) response = "We offer <b>Cash on Delivery (COD)</b>. Pay only when you receive your order.";
+            else if (query.includes("hi") || query.includes("hello")) response = "Namaste! Welcome to Carry Nest. How can I help you today?";
+            else response = "Sorry, I didn't quite get that. You can ask about <b>Founder, Delivery, Payment, or Order</b>.";
         }
-        else if (query.includes("cancel")) {
-            response = "<b>How to Cancel:</b><br>1. Go to 'Account' section.<br>2. Click on 'My Orders'.<br>3. Enter your phone number and find your order.<br>4. Click on the order and select 'Cancel Order' (Only available if status is NEW/CONFIRMED).";
-        }
-        else if (query.includes("exchange")) {
-            response = "<b>How to Exchange:</b><br>1. Go to 'My Orders' in your account.<br>2. Open your delivered order.<br>3. Click 'Exchange' button.<br>4. Select your new desired size and confirm. (Available for 24 hours after delivery).";
-        }
-        else if (query.includes("return")) {
-            response = "<b>How to Return:</b><br>1. Open your order in 'My Orders'.<br>2. If delivered, you will see a 'Return' button.<br>3. Select the reason for return and submit. (Available for 24 hours after delivery).";
-        }
-        else if (query.includes("delivery") || query.includes("time") || query.includes("eppudu")) {
-            response = "For Durki (503301), we deliver within <b>2 to 4 days</b>! For other areas, please contact support.";
-        }
-        else if (query.includes("cod") || query.includes("cash") || query.includes("payment")) {
-            response = "Yes, we support <b>Cash on Delivery (COD)</b>! You can pay when you receive your order.";
-        }
-        else if (query.includes("website") || query.includes("details")) {
-            response = "Carry Nest is your local online fashion store. We focus on quality, speed, and trust. Our website is designed to give you a seamless shopping experience.";
-        }
-        else if (query.includes("hi") || query.includes("hello") || query.includes("namaste")) {
-            response = "Namaste! Welcome to Carry Nest. I am your assistant. How can I help you today?";
-        }
-        else {
-            response = "I'm sorry, I didn't quite get that. You can ask me about:<br>• Who is the <b>Founder</b>?<br>• <b>How to Order</b>?<br>• <b>How to Cancel</b>?<br>• <b>How to Exchange/Return</b>?";
-        }
-
-        document.getElementById(tempId).innerHTML = response;
-        logs.scrollTop = logs.scrollHeight;
+        
+        document.getElementById(tempId).innerHTML = response; logs.scrollTop = logs.scrollHeight;
     }, 600);
 }
 </script>
