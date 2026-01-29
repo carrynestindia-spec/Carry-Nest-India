@@ -386,12 +386,10 @@ window.addEventListener('DOMContentLoaded', () => {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, updateDoc, onSnapshot, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const firebaseConfig = { apiKey: "AIzaSyDijunsZZH2NuutbuzGoMOvG3hD8nrliwY", authDomain: "carry-nest-admin.firebaseapp.com", projectId: "carry-nest-admin" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 const SHEET_ID = "1SEpFmOEYtJ4Lats3180ENbsxdg13YKk9QDeasqXEiiQ";
 let products = [], currentP = null, selectedS = null, myOrders = [], timerInt = null, currentOID = "";
@@ -549,35 +547,22 @@ function updateSheetStock(id) {
     updateWishIcon();
 }
 
-window.setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
-    }
-};
-
-window.verifyUser = async () => {
+// OTP BYPASS LOGIC ADDED HERE
+window.verifyUser = () => {
     const phoneInput = document.getElementById('track-phone').value;
-    const fullPhone = phoneInput.startsWith('+91') ? phoneInput : '+91' + phoneInput;
-    if (!phoneInput || phoneInput.length < 10) { alert("Please enter valid WhatsApp Number!"); return; }
-    window.setupRecaptcha();
+    if (!phoneInput || phoneInput.length < 10) { 
+        alert("Please enter a valid 10-digit WhatsApp Number!"); 
+        return; 
+    }
+    
+    // Direct verification without OTP
+    localStorage.setItem('cn_verified_phone', phoneInput);
+    alert("✅ Account Verified Successfully! (Auto-Login)");
+    
     const btn = document.getElementById('find-btn');
-    btn.disabled = true; btn.innerText = "Sending...";
-    signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier)
-        .then((confirmationResult) => {
-            const code = prompt("Enter 6-digit OTP sent to your phone:");
-            if (code) {
-                confirmationResult.confirm(code).then((result) => {
-                    localStorage.setItem('cn_verified_phone', phoneInput);
-                    alert("✅ Phone Verified Successfully!");
-                    btn.disabled = false; btn.innerText = "VERIFIED";
-                    fetchOrders();
-                }).catch(() => { alert("❌ Wrong OTP!"); btn.disabled = false; btn.innerText = "VERIFY"; });
-            } else { btn.disabled = false; btn.innerText = "VERIFY"; }
-        }).catch((err) => {
-            console.error(err);
-            alert("❌ SMS Error: Firebase lo Phone Auth enable chesi, Domain whitelist cheyyandi.");
-            btn.disabled = false; btn.innerText = "VERIFY";
-        });
+    btn.innerText = "VERIFIED";
+    
+    fetchOrders();
 };
 
 window.openGlobalReviews = () => {
