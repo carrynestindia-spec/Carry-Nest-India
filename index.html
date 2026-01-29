@@ -386,13 +386,11 @@ window.addEventListener('DOMContentLoaded', () => {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, updateDoc, onSnapshot, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-// AUTH IMPORTS ADDED
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const firebaseConfig = { apiKey: "AIzaSyDijunsZZH2NuutbuzGoMOvG3hD8nrliwY", authDomain: "carry-nest-admin.firebaseapp.com", projectId: "carry-nest-admin" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-// AUTH INITIALIZED
 const auth = getAuth(app);
 
 const SHEET_ID = "1SEpFmOEYtJ4Lats3180ENbsxdg13YKk9QDeasqXEiiQ";
@@ -400,7 +398,6 @@ let products = [], currentP = null, selectedS = null, myOrders = [], timerInt = 
 let wishlist = JSON.parse(localStorage.getItem('cn_wish')) || [];
 let inventoryStatus = {};
 
-// Review Variables
 let revImageBase64 = "";
 let selectedRating = 0;
 let editReviewId = null;
@@ -539,7 +536,6 @@ function updateSheetStock(id) {
     let sellPriceHtml = `₹${p.price}`; if(p.festDiscount > 0) sellPriceHtml += `<span class="fest-tag-detail">-${p.festDiscount} Festival Off</span>`;
     document.getElementById('v-sell').innerHTML = sellPriceHtml;
     document.getElementById('v-mrp').innerText = p.mrp > p.price ? '₹' + p.mrp : '';
-    document.getElementById('v-mrp').innerText = p.mrp > p.price ? '₹' + p.mrp : '';
     document.getElementById('v-desc').innerText = p.desc;
     document.getElementById('v-img').innerHTML = `<img src="${p.img}" style="width:100%;height:300px;object-fit:contain">`;
     let sH = ''; 
@@ -553,7 +549,6 @@ function updateSheetStock(id) {
     updateWishIcon();
 }
 
-// --- REAL OTP VERIFY USER LOGIC ADDED ---
 window.setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
@@ -563,13 +558,10 @@ window.setupRecaptcha = () => {
 window.verifyUser = async () => {
     const phoneInput = document.getElementById('track-phone').value;
     const fullPhone = phoneInput.startsWith('+91') ? phoneInput : '+91' + phoneInput;
-
     if (!phoneInput || phoneInput.length < 10) { alert("Please enter valid WhatsApp Number!"); return; }
-
     window.setupRecaptcha();
     const btn = document.getElementById('find-btn');
     btn.disabled = true; btn.innerText = "Sending...";
-
     signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier)
         .then((confirmationResult) => {
             const code = prompt("Enter 6-digit OTP sent to your phone:");
@@ -588,7 +580,6 @@ window.verifyUser = async () => {
         });
 };
 
-// --- NEW REVIEWS LOGIC ---
 window.openGlobalReviews = () => {
     document.getElementById('reviews-view').style.display = 'block';
     switchRevTab('all');
@@ -614,36 +605,29 @@ window.previewRevImage = (event) => {
 
 window.switchRevTab = (type) => {
     const phone = localStorage.getItem('cn_verified_phone');
-    
     if(type === 'my' && !phone) {
         alert("Please verify your WhatsApp Number in the Account section first!");
         document.getElementById('reviews-view').style.display = 'none';
         switchTab('account');
         return;
     }
-
     document.getElementById('tab-all-rev').classList.toggle('active', type === 'all');
     document.getElementById('tab-my-rev').classList.toggle('active', type === 'my');
-    
     const reviewsList = document.getElementById('global-reviews-list');
-    
     let q;
     if(type === 'all') {
         q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
     } else {
         q = query(collection(db, "reviews"), where("userPhone", "==", phone), orderBy("timestamp", "desc"));
     }
-
     onSnapshot(q, (snap) => {
         let h = '';
         snap.forEach(d => {
             const r = d.data();
             const id = d.id;
             const isMine = r.userPhone === phone;
-            
             let stars = '';
             for(let i=1; i<=5; i++) stars += `<i class="fa${i <= (r.rating||0) ? 's' : 'r'} fa-star"></i> `;
-
             h += `
             <div class="rev-card-full">
                 ${isMine ? `
@@ -668,13 +652,10 @@ window.postGlobalReview = async () => {
     const name = document.getElementById('global-rev-name').value;
     const text = document.getElementById('global-rev-text').value;
     const phone = localStorage.getItem('cn_verified_phone');
-
     if(!phone) return alert("Verify your WhatsApp number in the Account section first!");
     if(!name || !text || selectedRating === 0) return alert("Please fill Name, Review and Rating!");
-
     const btn = document.getElementById('global-rev-btn');
     btn.disabled = true; btn.innerText = "Processing...";
-
     const reviewData = {
         userName: name,
         userPhone: phone,
@@ -684,7 +665,6 @@ window.postGlobalReview = async () => {
         timestamp: serverTimestamp(),
         productId: "general"
     };
-
     try {
         if(editReviewId) {
             await updateDoc(doc(db, "reviews", editReviewId), reviewData);
@@ -735,7 +715,6 @@ window.deleteReview = async (id) => {
         alert("Review deleted.");
     }
 };
-// --- END REVIEWS LOGIC ---
 
 window.openForm = () => { 
     if(!selectedS) {
@@ -753,7 +732,6 @@ window.fetchOrders = () => {
     const phone = localStorage.getItem('cn_verified_phone');
     if(!phone) return;
     document.getElementById('track-phone').value = phone; 
-
     const q = query(collection(db, "orders"), where("phone", "==", phone));
     onSnapshot(q, (snap) => {
         myOrders = []; let h = '';
@@ -836,12 +814,10 @@ loadData();
 
 <script>
 let currentLang = 'en';
-
 function setLang(lang) {
     currentLang = lang;
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('lang-' + lang).classList.add('active');
-    
     const welcome = document.getElementById('ai-welcome');
     if(lang === 'te') {
         welcome.innerHTML = "నమస్తే! నేను మీకు ఎలా సహాయం చేయగలను? డెలివరీ, పేమెంట్, ఫౌండర్ లేదా రిటర్న్స్ గురించి అడగండి.";
@@ -851,14 +827,11 @@ function setLang(lang) {
         document.getElementById('ai-query').placeholder = "Type your doubt...";
     }
 }
-
 function toggleAI() { const win = document.getElementById('ai-window'); win.style.display = (win.style.display === 'flex') ? 'none' : 'flex'; }
-
 function sendToAI() {
     const input = document.getElementById('ai-query'); const logs = document.getElementById('ai-messages'); const query = input.value.trim().toLowerCase(); if(!query) return;
     logs.innerHTML += `<div class="msg-user">${input.value}</div>`; input.value = '';
     const tempId = 'ai-loading-' + Date.now(); logs.innerHTML += `<div class="msg-ai" id="${tempId}">...</div>`; logs.scrollTop = logs.scrollHeight;
-    
     setTimeout(() => {
         let response = "";
         if (currentLang === 'te') {
@@ -880,7 +853,6 @@ function sendToAI() {
             else if (query.includes("hi") || query.includes("hello")) response = "Namaste! Welcome to Carry Nest. How can I help you today?";
             else response = "Sorry, I didn't quite get that. You can ask about <b>Founder, Delivery, Payment, or Order</b>.";
         }
-        
         document.getElementById(tempId).innerHTML = response; logs.scrollTop = logs.scrollHeight;
     }, 600);
 }
